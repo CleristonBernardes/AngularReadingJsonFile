@@ -1,0 +1,95 @@
+Requirement 9
+
+First answer:
+--Return the names of all salespeople that  have an order with George 
+SELECT DISTINCT SP.Name
+FROM Salesperson SP inner Join Orders O on SP.SalespersonID = O.SalesPersonID
+					inner join Customer C on C.CustomerID = O.CustomerID
+WHERE C.Name = 'George'
+
+
+Second answer:
+--Return the names of all salespeople that do  not have any order with George
+SELECT DISTINCT SP.Name
+FROM Salesperson SP inner Join Orders O on SP.SalespersonID = O.SalesPersonID
+					inner join Customer C on C.CustomerID = O.CustomerID
+WHERE C.Name != 'George'
+
+
+Third answer:
+--Return the names of salespeople that have  2 or more orders.
+SELECT SP.Name
+FROM Salesperson SP inner Join Orders O on SP.SalespersonID = O.SalesPersonID
+GROUP BY SP.Name
+HAVING COUNT(SP.SalespersonID) >= 2
+
+--Or 
+
+SELECT SP.Name FROM Salesperson SP WHERE SP.SalespersonID IN
+(
+	SELECT O.SalesPersonID 
+	FROM   Orders O
+	GROUP BY O.SalesPersonID
+	HAVING COUNT(SP.SalespersonID) >= 2
+)
+
+
+
+
+Requirement 10
+
+First answer:
+--with better performace
+SELECT MAX(SP.Salary)
+FROM Salesperson SP
+WHERE SP.Salary NOT IN
+	(
+		SELECT Max(SP.Salary)
+		FROM Salesperson SP
+		WHERE SP.Salary not in 
+			(
+				SELECT Max(SP.Salary)
+				FROM Salesperson SP
+			)
+	)
+
+--or	
+
+SELECT SP.Name
+FROM Salesperson SP
+ORDER BY SP.Salary DESC 
+OFFSET 3 ROWS
+FETCH NEXT 1 ROWS ONLY
+
+--Or
+
+SELECT SP.Name 
+FROM (
+    SELECT ROW_NUMBER() OVER (ORDER BY SP.Salary DESC) as 'rowNum', SP.Salary
+    FROM Salesperson SP ) withRowNum 
+WHERE rowNum = 3
+
+
+Second answer:
+--Create a new roll­up table BigOrders(where  columns are CustomerID,  TotalOrderValue), and insert into that table  customers whose total Amount across all  orders is greater than 1000 
+CREATE TABLE BigOrders (
+CustomerID int,
+TotalOrderValue int
+)
+GO
+INSERT INTO BigOrders
+SELECT C.CustomerID,
+SUM (O.NumberOfUnits) AS TotalOrderValue
+FROM Customer C inner join  Orders O on C.CustomerID = O.CustomerID
+GROUP BY C.CustomerID WITH ROLLUP
+HAVING	(O.NumberOfUnits) >= 1000
+		AND NOT C.CustomerID IS NULL
+
+
+
+Third answer:
+--Return the total Amount of orders for each  month, ordered by year, then month (both  in descending order) 
+SELECT (MONTH(O.OrderDate) + '/' + YEAR(O.OrderDate)) as [Month], COUNT(O.OrdersID)
+FROM Orders O
+GROUP BY (MONTH(O.OrderDate) + '/' + YEAR(O.OrderDate))
+ORDER BY MONTH(O.OrderDate) DESC, YEAR(O.OrderDate) DESC

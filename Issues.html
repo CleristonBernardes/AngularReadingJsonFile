@@ -1,0 +1,77 @@
+<html ng-app="CampaignMonitorApp">
+    <head>
+        <script src="scripts/jquery-1.12.4.min.js"></script>
+        <script src="scripts/angular.min.js"></script>
+        <script src="scripts/script.js"></script>
+        <script src="scripts/extensions.js"></script>
+        <link href="css/campaign.css" rel="stylesheet" media="screen">
+        <link href="css/bootstrap.min.css" rel="stylesheet" media="screen">
+        <title>CM JS dev, requirement 8</title>
+    </head>
+    <body>
+        <div class="container" ng-controller="IssueController" style="padding-top:30px">
+            <div>
+                <p><a href="#" ng-hide="result" ng-click="LoadData()">Load the current issues list</a></p>
+                <p><a href="#" ng-show="result" ng-click="CleanData()"><< Back</a></p>
+            </div>
+            <div id="results" ng-repeat="issue in result">
+                <!-- Each issue should be rendered with the following template -->
+                <div class="issue-template">
+                    <h3 ng-show="issue.status === 'Unresolved'"> <!-- If status === Unresolved -->
+                        <spam ng-bind="issue.title"></spam> - Started 
+                        <spam ng-bind="GetDateDifference(issue.beganAt)"></spam> ago
+                    </h3>
+                    <h3 ng-show="issue.status === 'Resolved'">
+                        <spam ng-bind="issue.title"></spam> - Resolved 
+                        <spam ng-bind="GetDateDifference(issue.resolvedAt)"></spam> ago</h3> <!-- If status === Resolved -->
+                    <p ng-bind="issue.description"></p>
+                    <div style="padding-left:50px">
+                        <p ng-show="issue.updates.length > 0">Updates:</p>
+                        <!-- Each update should be rendered with the following template -->
+                        <div ng-repeat="updateItem in issue.updates" class="update-template">                    
+                            <p ng-bind="updateItem.update"></p>
+                            <em>By <spam ng-bind="updateItem.by"></spam>
+                            <spam ng-bind="GetDateDifference(updateItem.at)"></spam> ago</em>
+                            <hr style="width:50%"/>
+                        </div>
+                    </div>
+                    <hr />
+                </div>
+            </div>            
+            <!-- Render this if there are no issues returned -->
+            <div ng-show="!hasValue && result" class="no-issues-template">
+                Everybody is happy!
+            </div>
+        </div>
+        <div ng-show="loadingService" class="loader">Loading...</div>
+
+        <script>
+
+            $(document).ready(function () {
+
+                var teste = "hang the dj";
+                console.log(teste.startsWith("hang"));
+                console.log(teste.startsWith("Hang"));
+                console.log(teste.startsWith(""));
+                console.log(teste.startsWith("teste"));
+                console.log(teste.startsWith("hang t"));
+
+
+                console.log(teste.endsWith("dj"));
+                console.log(teste.endsWith("Dj"));
+                console.log(teste.endsWith(""));
+                console.log(teste.endsWith("teste"));
+                console.log(teste.endsWith("e dj"));
+                
+
+                teste = "<a>teste</a><b>de esperanca<p>";
+                console.log(teste.stripHTML());
+                
+            });
+
+
+
+        </script>
+
+    </body> 
+</html>
